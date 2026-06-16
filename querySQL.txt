@@ -1,0 +1,234 @@
+Query yang telah saya jalankan selama proses pengerjaan proyek AGIA Technical Test
+
+Query-1
+
+-- Mengaktifkan ekstensi untuk generate UUID otomatis (biasanya sudah aktif di Supabase)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- ==========================================
+-- 1. TABEL PRODUCTS
+-- Sesuai dengan minimum requirement data produk
+-- ==========================================
+CREATE TABLE products (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    price NUMERIC NOT NULL,
+    category TEXT NOT NULL,
+    stock INTEGER NOT NULL DEFAULT 0,
+    image_url TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 2. TABEL CHAT SESSIONS
+-- Menyimpan sesi obrolan, mendukung user login maupun guest
+-- ==========================================
+CREATE TABLE chat_sessions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE, -- Berelasi otomatis dengan auth bawaan Supabase
+    guest_id TEXT, -- Diisi dari localStorage jika user belum login
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 3. TABEL CHAT MESSAGES
+-- Menyimpan riwayat percakapan per sesi
+-- ==========================================
+CREATE TABLE chat_messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    session_id UUID REFERENCES chat_sessions(id) ON DELETE CASCADE,
+    role TEXT NOT NULL CHECK (role IN ('user', 'assistant')), -- Memastikan isinya hanya 'user' atau 'assistant'
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 4. TABEL CARTS (Persiapan Fitur Tambahan)
+-- Keranjang belanja untuk user yang sudah login
+-- ==========================================
+CREATE TABLE carts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+Query-2
+
+-- Mengaktifkan fitur RLS di semua tabel
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE carts ENABLE ROW LEVEL SECURITY;
+
+-- Membuat kebijakan (Policy) agar semua orang (publik) BISA MEMBACA data produk
+CREATE POLICY "Public can view products" 
+ON products FOR SELECT USING (true);
+
+-- (Opsional) Kebijakan ini memastikan hanya Admin yang bisa Insert/Update/Delete produk.
+-- Nantinya di backend, kamu menggunakan Service Role Key milik Supabase untuk mem-bypass RLS saat Admin melakukan CRUD.
+
+Query-3
+
+-- 1. Membuat tipe ENUM untuk membatasi pilihan role
+CREATE TYPE user_role AS ENUM ('admin', 'customer');
+
+-- 2. Membuat tabel profiles yang berelasi 1-to-1 dengan auth.users
+CREATE TABLE profiles (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    role user_role NOT NULL DEFAULT 'customer',
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Aktifkan RLS pada tabel profiles
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+-- 4. Buat Policy: Semua user yang login bisa melihat profile mereka sendiri
+CREATE POLICY "User bisa melihat profile sendiri" 
+ON profiles FOR SELECT 
+USING (auth.uid() = id);
+
+Query-4
+
+INSERT INTO profiles (id, role)
+VALUES ('PASTE_UUID_DI_SINI', 'admin');
+
+Query-5
+
+-- ==========================================
+-- TABEL WISHLISTS (Daftar Keinginan / Favorit)
+-- ==========================================
+CREATE TABLE wishlists (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    -- Constraint ini mencegah user menambahkan produk yang sama lebih dari sekali
+    UNIQUE(user_id, product_id)
+);
+
+-- ==========================================
+-- MENGAKTIFKAN KEAMANAN (RLS)
+-- ==========================================
+ALTER TABLE wishlists ENABLE ROW LEVEL SECURITY;
+
+-- 1. Policy: User hanya bisa melihat data wishlist mereka sendiri
+CREATE POLICY "User view own wishlist" 
+ON wishlists FOR SELECT 
+USING (auth.uid() = user_id);
+
+-- 2. Policy: User hanya bisa menambah barang ke wishlist mereka sendiri
+CREATE POLICY "User insert own wishlist" 
+ON wishlists FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+-- 3. Policy: User hanya bisa menghapus barang dari wishlist mereka sendiri
+CREATE POLICY "User delete own wishlist" 
+ON wishlists FOR DELETE 
+USING (auth.uid() = user_id);
+
+Query-6
+
+-- 1. Membuat fungsi otomatis untuk memasukkan profil baru
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, role)
+  VALUES (new.id, 'customer');
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 2. Membuat trigger yang menjalankan fungsi di atas setelah user baru terdaftar di auth.users
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+Query-7
+
+INSERT INTO public.profiles (id, role)
+SELECT id, 'customer'::user_role
+FROM auth.users
+ON CONFLICT (id) DO NOTHING;
+
+Query-8
+
+-- ==========================================
+-- TABEL WISHLISTS (Daftar Keinginan / Favorit)
+-- ==========================================
+CREATE TABLE wishlists (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    -- Constraint ini mencegah user menambahkan produk yang sama lebih dari sekali
+    UNIQUE(user_id, product_id)
+);
+
+-- ==========================================
+-- MENGAKTIFKAN KEAMANAN (RLS)
+-- ==========================================
+ALTER TABLE wishlists ENABLE ROW LEVEL SECURITY;
+
+-- 1. Policy: User hanya bisa melihat data wishlist mereka sendiri
+CREATE POLICY "User view own wishlist" 
+ON wishlists FOR SELECT 
+USING (auth.uid() = user_id);
+
+-- 2. Policy: User hanya bisa menambah barang ke wishlist mereka sendiri
+CREATE POLICY "User insert own wishlist" 
+ON wishlists FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+-- 3. Policy: User hanya bisa menghapus barang dari wishlist mereka sendiri
+CREATE POLICY "User delete own wishlist" 
+ON wishlists FOR DELETE 
+USING (auth.uid() = user_id);
+
+Query-9
+
+-- 1. Membuat tabel baru untuk menampung banyak gambar per produk
+CREATE TABLE product_images (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    image_url TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Aktifkan RLS demi keamanan nilai tes
+ALTER TABLE product_images ENABLE ROW LEVEL SECURITY;
+
+-- 3. Kebijakan agar semua orang bisa melihat gambar produk
+CREATE POLICY "Public can view product images" 
+ON product_images FOR SELECT USING (true);
+
+-- 4. (Opsional) Hapus kolom image_url yang lama di tabel products agar database bersih
+ALTER TABLE products DROP COLUMN IF EXISTS image_url;
+
+Query-10
+
+ALTER TABLE carts ADD CONSTRAINT carts_user_product_unique UNIQUE (user_id, product_id);
+
+-- 1. Policy: User can view their own cart items
+CREATE POLICY "User view own cart" 
+ON carts FOR SELECT 
+USING (auth.uid() = user_id);
+
+-- 2. Policy: User can add items to their own cart
+CREATE POLICY "User insert own cart" 
+ON carts FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+-- 3. Policy: User can update their own cart items
+CREATE POLICY "User update own cart" 
+ON carts FOR UPDATE 
+USING (auth.uid() = user_id);
+
+-- 4. Policy: User can delete their own cart items
+CREATE POLICY "User delete own cart" 
+ON carts FOR DELETE 
+USING (auth.uid() = user_id);
+

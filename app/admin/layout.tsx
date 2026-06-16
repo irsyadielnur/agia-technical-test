@@ -32,18 +32,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           setUser(session.user);
         }
 
-        // Verify that the user has the admin role
         const { data: profile, error } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
 
         if (error) {
           console.error('Error fetching profile role:', error);
-          if (mounted) router.push('/'); // Fallback
+          if (mounted) router.push('/');
           return;
         }
 
         if (profile?.role !== 'admin') {
           console.warn('User is not admin, redirecting. Role:', profile?.role);
-          if (mounted) router.push('/'); // Redirect non-admins back to home
+          if (mounted) router.push('/');
           return;
         }
 
@@ -63,11 +62,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-gray-50/50 flex">
-      {/* Sidebar is always visible */}
       <Sidebar />
-
-      {/* Main Container */}
-      <main className="flex-1 p-6 lg:p-8 relative min-h-screen">
+      <main className="flex-1 p-4 md:p-6 lg:p-8 relative min-h-screen pt-20 md:pt-6">
         {isLoading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/50">
             <Loader2 className="w-10 h-10 text-slate-800 animate-spin" />

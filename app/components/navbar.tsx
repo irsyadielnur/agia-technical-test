@@ -218,7 +218,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="fixed top-16 left-0 w-full bg-brand-bg/95 backdrop-blur-lg z-40 border-b border-gray-100 shadow-lg">
+        <div className="fixed top-16 left-0 w-full bg-brand-bg/95 backdrop-blur-lg z-40 border-b border-gray-100 shadow-lg overflow-y-auto max-h-[calc(100vh-4rem)]">
           <div className="flex flex-col p-6 gap-4">
             {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href || (link.href !== '/' && pathname?.startsWith(link.href));

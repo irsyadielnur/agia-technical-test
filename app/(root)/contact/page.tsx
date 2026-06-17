@@ -5,7 +5,7 @@ import { slideIn } from "@/app/components/motion";
 
 export default function ContactPage() {
   return (
-    <main className="flex flex-col items-center justify-center text-center h-screen w-full">
+    <main className="flex flex-col items-center justify-center text-center min-h-[calc(100vh-4rem)] pt-16 w-full">
       <motion.h1
         variants={slideIn("left", 0)}
         initial="hidden"

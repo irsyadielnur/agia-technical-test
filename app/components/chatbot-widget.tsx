@@ -13,6 +13,62 @@ interface Message {
   timestamp: Date;
 }
 
+interface TypewriterTextProps {
+  text: string;
+  isStreaming: boolean;
+  onParse: (text: string) => React.ReactNode;
+}
+
+function TypewriterText({ text, isStreaming, onParse }: TypewriterTextProps) {
+  const [displayedText, setDisplayedText] = useState("");
+  const textRef = useRef(text);
+  textRef.current = text;
+
+  useEffect(() => {
+    if (!isStreaming && displayedText === text) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      const target = textRef.current;
+      setDisplayedText((prev) => {
+        if (prev === target) {
+          if (!isStreaming) {
+            clearInterval(intervalId);
+          }
+          return prev;
+        }
+
+        if (target.startsWith(prev)) {
+          const remaining = target.substring(prev.length);
+          if (!remaining) return prev;
+
+          const nextWordMatch = remaining.match(/^(\s*\S+)/);
+          if (nextWordMatch) {
+            return prev + nextWordMatch[1];
+          }
+          return target;
+        } else {
+          return target.substring(0, Math.min(prev.length + 5, target.length));
+        }
+      });
+    }, 30);
+
+    return () => clearInterval(intervalId);
+  }, [isStreaming]);
+
+  useEffect(() => {
+    if (!isStreaming) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(text);
+      }, 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [isStreaming, text]);
+
+  return <>{onParse(displayedText || text)}</>;
+}
+
 export default function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -25,6 +81,7 @@ export default function ChatbotWidget() {
   ]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [productsCatalog, setProductsCatalog] = useState<any[]>([]);
 
   // Chat session states
@@ -358,6 +415,7 @@ export default function ChatbotWidget() {
     setMessages(updatedMessages);
     setInputText("");
     setIsLoading(true);
+    setIsStreaming(true);
 
     try {
       const response = await fetch("/api/chat", {
@@ -414,6 +472,7 @@ export default function ChatbotWidget() {
           ),
         );
       }
+      setIsStreaming(false);
     } catch (err) {
       console.error("Chat error:", err);
       const botErrorMessage: Message = {
@@ -424,11 +483,16 @@ export default function ChatbotWidget() {
       };
       setMessages((prev) => [...prev, botErrorMessage]);
       setIsLoading(false);
+      setIsStreaming(false);
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className={`fixed z-50 ${
+      isOpen 
+        ? "inset-0 sm:inset-auto sm:bottom-6 sm:right-6" 
+        : "bottom-6 right-4 sm:bottom-6 sm:right-6"
+    }`}>
       <AnimatePresence mode="wait">
         {/* Toggle Floating Button (shows only when chat is closed) */}
         {!isOpen && (
@@ -465,7 +529,7 @@ export default function ChatbotWidget() {
               duration: 0.4,
               ease: [0.16, 1, 0.3, 1],
             }}
-            className="w-[380px] h-[550px] bg-white rounded-3xl shadow-2xl border border-gray-150 flex flex-col overflow-hidden relative"
+            className="w-full sm:w-[380px] h-full sm:h-[550px] sm:max-h-[600px] bg-white rounded-none sm:rounded-3xl shadow-2xl border-0 sm:border border-gray-150 flex flex-col overflow-hidden relative"
           >
             {/* Chatbot Header */}
             <div className="bg-linear-to-r from-brand-text to-[#1d2939] text-white p-4 flex justify-between items-center shrink-0">
@@ -513,7 +577,7 @@ export default function ChatbotWidget() {
 
             {/* Chat Message Lists (Creamy light background matching globals.css theme) */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#fcfcf0]">
-              {messages.map((msg) => {
+              {messages.map((msg, idx) => {
                 const recProducts = getRecommendedProducts(msg.text);
                 const cleanedText = cleanMessageText(msg.text);
 
@@ -532,7 +596,15 @@ export default function ChatbotWidget() {
                         }`}
                       >
                         <div className="whitespace-pre-wrap flex flex-col gap-0.5">
-                          {parseMessageText(cleanedText)}
+                          {msg.sender === "bot" && idx === messages.length - 1 ? (
+                            <TypewriterText
+                              text={cleanedText}
+                              isStreaming={isStreaming || msg.text === ""}
+                              onParse={parseMessageText}
+                            />
+                          ) : (
+                            parseMessageText(cleanedText)
+                          )}
                         </div>
                         <span
                           className={`text-[8px] mt-1 block text-right font-medium opacity-60 ${

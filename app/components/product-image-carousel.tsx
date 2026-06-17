@@ -56,14 +56,14 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
         <>
           <button
             onClick={handlePrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 backdrop-blur-xs flex items-center justify-center text-gray-800 hover:bg-white transition-all cursor-pointer opacity-0 group-hover:opacity-100 shadow-md border border-gray-100 z-10"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 backdrop-blur-xs flex items-center justify-center text-gray-800 hover:bg-white transition-all cursor-pointer opacity-100 lg:opacity-0 lg:group-hover:opacity-100 shadow-md border border-gray-100 z-10"
             aria-label="Gambar sebelumnya"
           >
             <ChevronLeft size={18} />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 backdrop-blur-xs flex items-center justify-center text-gray-800 hover:bg-white transition-all cursor-pointer opacity-0 group-hover:opacity-100 shadow-md border border-gray-100 z-10"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 backdrop-blur-xs flex items-center justify-center text-gray-800 hover:bg-white transition-all cursor-pointer opacity-100 lg:opacity-0 lg:group-hover:opacity-100 shadow-md border border-gray-100 z-10"
             aria-label="Gambar selanjutnya"
           >
             <ChevronRight size={18} />

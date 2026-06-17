@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         .from("chat_sessions")
         .insert({
           user_id: userId || null,
-          guest_id: userId ? null : (guestId || null),
+          guest_id: userId ? null : guestId || null,
         })
         .select()
         .single();
@@ -90,15 +90,15 @@ export async function POST(req: Request) {
     // 3. No consecutive messages of the same role.
     const geminiContents: any[] = [];
     let expectedRole = "user";
-    
+
     for (const m of messages) {
       const role = m.sender === "user" ? "user" : "model";
-      
+
       // Skip any leading model messages (like the initial greeting)
       if (geminiContents.length === 0 && role === "model") {
         continue;
       }
-      
+
       if (role === expectedRole) {
         geminiContents.push({
           role: role,
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?key=${apiKey}`;
 
     const geminiRes = await fetch(geminiUrl, {
       method: "POST",
@@ -158,6 +158,7 @@ export async function POST(req: Request) {
     const customStream = new ReadableStream({
       async start(controller) {
         let tempBuffer = "";
+        let scanIndex = 0;
         let jsonStart = -1;
         let braceCount = 0;
         let inString = false;
@@ -169,7 +170,7 @@ export async function POST(req: Request) {
             const { done, value } = await reader.read();
             if (done) {
               controller.close();
-              
+
               // Save assistant message to database
               if (activeSessionId && fullBotText.trim()) {
                 const { error: insertBotErr } = await dbClient
@@ -180,7 +181,10 @@ export async function POST(req: Request) {
                     content: fullBotText.trim(),
                   });
                 if (insertBotErr) {
-                  console.error("Error inserting assistant message:", insertBotErr);
+                  console.error(
+                    "Error inserting assistant message:",
+                    insertBotErr,
+                  );
                 }
               }
               break;
@@ -188,7 +192,7 @@ export async function POST(req: Request) {
 
             tempBuffer += decoder.decode(value, { stream: true });
 
-            for (let i = 0; i < tempBuffer.length; i++) {
+            for (let i = scanIndex; i < tempBuffer.length; i++) {
               const char = tempBuffer[i];
               if (escape) {
                 escape = false;
@@ -227,12 +231,14 @@ export async function POST(req: Request) {
                       // ignore parse errors for incomplete objects
                     }
                     tempBuffer = tempBuffer.substring(i + 1);
+                    scanIndex = 0;
                     i = -1;
                     jsonStart = -1;
                   }
                 }
               }
             }
+            scanIndex = Math.max(0, tempBuffer.length);
           }
         } catch (e) {
           controller.error(e);

@@ -101,7 +101,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </p>
 
           {/* Price & Cart quick action */}
-          <div className="flex justify-between items-center mt-5 pt-3.5 border-t border-gray-100 shrink-0 gap-2">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center mt-5 pt-3.5 border-t border-gray-100 shrink-0 gap-2">
             <span className="font-extrabold text-gray-900 text-sm sm:text-base">
               {formatIDR(product.price)}
             </span>
@@ -112,7 +112,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 addToCart(product);
               }}
               disabled={product.stock <= 0}
-              className="flex items-center gap-1.5 bg-gray-900 text-white hover:bg-brand-secondary hover:text-brand-text disabled:bg-gray-100 disabled:text-gray-400 px-3.5 py-2 rounded-xl text-[10px] font-bold active:scale-95 transition-all cursor-pointer shadow-xs shrink-0 border border-transparent hover:border-gray-200"
+              className="flex items-center justify-center gap-1.5 bg-gray-900 text-white hover:bg-brand-secondary hover:text-brand-text disabled:bg-gray-100 disabled:text-gray-400 px-3.5 py-2.5 sm:py-2 rounded-xl text-[10px] font-bold active:scale-95 transition-all cursor-pointer shadow-xs shrink-0 border border-transparent hover:border-gray-200 w-full sm:w-auto"
             >
               <ShoppingBag size={12} />
               <span>+ Keranjang</span>

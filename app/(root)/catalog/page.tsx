@@ -265,7 +265,7 @@ export default function CatalogPage() {
   return (
     <div className="flex flex-col min-h-screen bg-brand-bg/20 selection:bg-brand-secondary/30">
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-20 pt-24 pb-16">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-20 pt-24 pb-16">
         {/* Breadcrumb & Header */}
         <div className="mb-8 space-y-2">
           <div className="text-xs text-gray-400 flex items-center gap-1 font-semibold">
@@ -466,7 +466,7 @@ export default function CatalogPage() {
 
             {/* Products Catalog Grid */}
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                 {[...Array(6)].map((_, idx) => (
                   <div
                     key={idx}
@@ -518,7 +518,7 @@ export default function CatalogPage() {
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
-                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
+                  className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
                 >
                   {products.map((product, idx) => {
                     const rowIndex = Math.floor(idx / 3);

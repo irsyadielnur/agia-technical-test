@@ -66,7 +66,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-text py-8 md:py-16 px-4">
+    <div className="min-h-screen bg-brand-bg text-brand-text pt-24 pb-8 md:py-16 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
         {/* Back Button */}
         <Link

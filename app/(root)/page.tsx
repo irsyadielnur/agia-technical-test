@@ -3,7 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, Variants, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  Variants,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import { staggerContainer, fadeInUp, slideIn } from "@/app/components/motion";
 import {
   ArrowDown,
@@ -169,7 +175,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-brand-bg selection:bg-brand-secondary/30">
-      <section className="relative w-full h-screen flex items-center justify-center pt-12 overflow-hidden px-6 md:px-20">
+      <section className="relative w-full h-dvh min-h-[500px] flex items-center justify-center pt-16 overflow-hidden px-4 sm:px-6 md:px-20">
         <motion.div
           className="absolute inset-0 z-0"
           variants={slideIn("right", 0.2)}
@@ -223,7 +229,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-6 md:px-20 bg-white relative">
+      <section className="py-20 px-4 sm:px-6 md:px-20 bg-white relative">
         <div className="max-w-7xl mx-auto space-y-12">
           <motion.div
             variants={staggerContainer(0.2)}
@@ -283,7 +289,7 @@ export default function Home() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.15 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4"
             >
               {categories.map((cat) => (
                 <Link
@@ -328,7 +334,7 @@ export default function Home() {
       {/* Latest Products Section */}
       <section
         id="products-section"
-        className="py-20 px-6 md:px-20 bg-linear-to-b from-white to-brand-bg/20 scroll-mt-12"
+        className="py-20 px-4 sm:px-6 md:px-20 bg-linear-to-b from-white to-brand-bg/20 scroll-mt-12"
       >
         <div className="max-w-7xl mx-auto space-y-12">
           {/* Header */}
@@ -380,7 +386,7 @@ export default function Home() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.1 }}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
               >
                 {latestProducts.map((product, idx) => {
                   const rowIndex = Math.floor(idx / 4);

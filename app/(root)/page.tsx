@@ -235,7 +235,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 md:px-20 bg-brand-bg relative">
+      <section className="py-20 px-4 sm:px-6 md:px-20 bg-brand-bg relative overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-12">
           <motion.div
             variants={staggerContainer(0.2)}
@@ -339,7 +339,7 @@ export default function Home() {
       {/* Latest Products Section */}
       <section
         id="products-section"
-        className="py-20 px-4 sm:px-6 md:px-20 bg-brand-bg scroll-mt-12"
+        className="py-20 px-4 sm:px-6 md:px-20 bg-brand-bg scroll-mt-12 overflow-hidden"
       >
         <div className="max-w-7xl mx-auto space-y-12">
           {/* Header */}

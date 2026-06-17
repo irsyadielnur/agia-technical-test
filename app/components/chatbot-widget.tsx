@@ -488,11 +488,13 @@ export default function ChatbotWidget() {
   };
 
   return (
-    <div className={`fixed z-50 ${
-      isOpen 
-        ? "inset-0 sm:inset-auto sm:bottom-6 sm:right-6" 
-        : "bottom-6 right-4 sm:bottom-6 sm:right-6"
-    }`}>
+    <div
+      className={`fixed z-50 ${
+        isOpen
+          ? "inset-0 sm:inset-auto sm:bottom-6 sm:right-6"
+          : "bottom-6 right-4 sm:bottom-6 sm:right-6"
+      }`}
+    >
       <AnimatePresence mode="wait">
         {/* Toggle Floating Button (shows only when chat is closed) */}
         {!isOpen && (
@@ -511,7 +513,7 @@ export default function ChatbotWidget() {
             onClick={() => setIsOpen(true)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 1.0 }}
-            className="w-14 h-14 rounded-full flex items-center justify-center bg-brand-text text-white hover:bg-brand-secondary hover:text-brand-text shadow-xl hover:shadow-brand-secondary/20 transition-transform duration-300 cursor-pointer group"
+            className="w-14 h-14 rounded-full flex items-center justify-center bg-brand-text text-brand-bg shadow-xl hover:shadow-brand-secondary/20 transition-transform duration-300 cursor-pointer group"
           >
             <MessageSquare className="w-6 h-6 transition-transform duration-300 group-hover:scale-110" />
           </motion.button>
@@ -529,13 +531,13 @@ export default function ChatbotWidget() {
               duration: 0.4,
               ease: [0.16, 1, 0.3, 1],
             }}
-            className="w-full sm:w-[380px] h-full sm:h-[550px] sm:max-h-[600px] bg-white rounded-none sm:rounded-3xl shadow-2xl border-0 sm:border border-gray-150 flex flex-col overflow-hidden relative"
+            className="w-full sm:w-[380px] h-full sm:h-[550px] sm:max-h-[600px] bg-brand-surface rounded-none sm:rounded-3xl shadow-2xl border-0 sm:border border-gray-150 flex flex-col overflow-hidden relative"
           >
             {/* Chatbot Header */}
-            <div className="bg-linear-to-r from-brand-text to-[#1d2939] text-white p-4 flex justify-between items-center shrink-0">
+            <div className="bg-brand-text text-brand-bg p-4 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 {/* Bot Avatar indicator */}
-                <div className="relative w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
+                <div className="relative w-10 h-10 rounded-full bg-brand-bg/10 flex items-center justify-center border border-brand-bg/10">
                   <Bot className="w-5 h-5 text-brand-secondary" />
                   <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-brand-text">
                     <span className="animate-ping absolute top-0 left-0 inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -546,7 +548,7 @@ export default function ChatbotWidget() {
                     <span className="font-bold text-sm">UNEEYA AI</span>
                     <Sparkles className="w-3.5 h-3.5 text-brand-tertiary" />
                   </div>
-                  <span className="text-[10px] text-gray-400 block font-medium">
+                  <span className="text-[10px] text-brand-bg/60 block font-medium">
                     Asisten Bot • Aktif
                   </span>
                 </div>
@@ -557,7 +559,7 @@ export default function ChatbotWidget() {
                 <button
                   onClick={handleNewChat}
                   title="Mulai obrolan baru"
-                  className="px-2 py-1 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer border border-transparent hover:border-white/10 text-[10px] font-semibold flex items-center gap-1"
+                  className="px-2 py-1 rounded-lg hover:bg-brand-bg/10 text-brand-bg/80 hover:text-brand-bg transition-colors cursor-pointer border border-transparent text-[10px] font-semibold flex items-center gap-1"
                 >
                   <Sparkles size={11} className="text-brand-tertiary" />
                   <span>Obrolan Baru</span>
@@ -567,7 +569,7 @@ export default function ChatbotWidget() {
                 <button
                   onClick={() => setIsOpen(false)}
                   id="chatbot-close-button"
-                  className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer border border-transparent hover:border-white/10"
+                  className="p-1.5 rounded-full hover:bg-brand-bg/10 text-brand-bg/85 hover:text-brand-bg transition-colors cursor-pointer border border-transparent"
                   aria-label="Tutup chatbot"
                 >
                   <X size={16} />
@@ -576,7 +578,7 @@ export default function ChatbotWidget() {
             </div>
 
             {/* Chat Message Lists (Creamy light background matching globals.css theme) */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#fcfcf0]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-brand-bg">
               {messages.map((msg, idx) => {
                 const recProducts = getRecommendedProducts(msg.text);
                 const cleanedText = cleanMessageText(msg.text);
@@ -596,7 +598,8 @@ export default function ChatbotWidget() {
                         }`}
                       >
                         <div className="whitespace-pre-wrap flex flex-col gap-0.5">
-                          {msg.sender === "bot" && idx === messages.length - 1 ? (
+                          {msg.sender === "bot" &&
+                          idx === messages.length - 1 ? (
                             <TypewriterText
                               text={cleanedText}
                               isStreaming={isStreaming || msg.text === ""}
@@ -691,7 +694,7 @@ export default function ChatbotWidget() {
             {/* Chat Input Footer */}
             <form
               onSubmit={handleSendMessage}
-              className="p-3 bg-white border-t border-gray-100 flex items-center gap-2 shrink-0"
+              className="p-3 bg-white border-t border-brand-border flex items-center gap-2 shrink-0"
             >
               <input
                 type="text"
@@ -699,14 +702,14 @@ export default function ChatbotWidget() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Ketik pesan di sini..."
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:border-transparent transition-all placeholder-gray-400 text-brand-text"
+                className="flex-1 bg-brand-hover border border-brand-border rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-secondary focus:border-transparent transition-all placeholder-gray-400 text-brand-text"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 id="chatbot-send-button"
                 disabled={!inputText.trim() || isLoading}
-                className="p-2.5 rounded-2xl bg-brand-text text-white hover:bg-brand-secondary hover:text-brand-text transition-all duration-300 disabled:bg-gray-100 disabled:text-gray-400 hover:scale-105 active:scale-100 cursor-pointer shadow-md shadow-gray-100 shrink-0"
+                className="p-2.5 rounded-2xl bg-brand-text text-brand-bg hover:bg-brand-secondary hover:text-brand-text transition-all duration-300 disabled:bg-gray-100 disabled:text-gray-400 hover:scale-105 active:scale-100 cursor-pointer shadow-md shrink-0"
                 aria-label="Kirim pesan"
               >
                 <Send size={14} />

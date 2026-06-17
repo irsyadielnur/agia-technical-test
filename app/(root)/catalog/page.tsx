@@ -164,7 +164,9 @@ export default function CatalogPage() {
       setTotalProducts(count || 0);
 
       // 2. Fetch paginated and sorted products
-      let query = supabase.from("products").select("*, product_images(image_url)");
+      let query = supabase
+        .from("products")
+        .select("*, product_images(image_url)");
 
       if (searchTerm.trim()) {
         query = query.ilike("name", `%${searchTerm}%`);
@@ -252,8 +254,6 @@ export default function CatalogPage() {
 
   const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
-
-
   const isAnyFilterActive =
     searchTerm !== "" ||
     selectedCategory !== "all" ||
@@ -263,8 +263,7 @@ export default function CatalogPage() {
     sortBy !== "date-desc";
 
   return (
-    <div className="flex flex-col min-h-screen bg-brand-bg/20 selection:bg-brand-secondary/30">
-
+    <div className="flex flex-col min-h-screen bg-brand-bg selection:bg-brand-secondary/30">
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-20 pt-24 pb-16">
         {/* Breadcrumb & Header */}
         <div className="mb-8 space-y-2">
@@ -296,7 +295,7 @@ export default function CatalogPage() {
         {/* Catalog Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
           {/* Filters Sidebar (Desktop) */}
-          <aside className="hidden lg:block lg:col-span-1 bg-white border border-gray-150 p-6 rounded-2xl shadow-xs sticky top-20">
+          <aside className="hidden lg:block lg:col-span-1 bg-brand-bg border border-gray-150 p-6 rounded-2xl shadow-xs sticky top-20">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
               <span className="font-bold text-brand-text text-base flex items-center gap-2">
                 <SlidersHorizontal size={16} />
@@ -414,7 +413,7 @@ export default function CatalogPage() {
           {/* Catalog Main Content Column */}
           <div className="col-span-1 lg:col-span-3 space-y-6">
             {/* Search, Mobile Filter Trigger, and Sort Header */}
-            <div className="bg-white border border-gray-150 p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between shadow-xs">
+            <div className="bg-brand-bg border border-gray-150 p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between shadow-xs">
               {/* Search input field */}
               <div className="relative w-full md:max-w-md">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -746,7 +745,6 @@ export default function CatalogPage() {
           </>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

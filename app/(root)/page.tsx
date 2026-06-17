@@ -1,23 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   motion,
-  Variants,
   useScroll,
   useTransform,
   AnimatePresence,
 } from "framer-motion";
-import { staggerContainer, fadeInUp, slideIn } from "@/app/components/motion";
-import {
-  ArrowDown,
-  ShoppingBag,
-  Layers,
-  ArrowRight,
-  Loader2,
-} from "lucide-react";
+import { staggerContainer, slideIn } from "@/app/components/motion";
+import { ShoppingBag, Layers, Loader2 } from "lucide-react";
 import ProductCard from "@/app/components/product-card";
 import { supabase } from "@/lib/supabase";
 
@@ -72,6 +65,22 @@ export default function Home() {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+  const [columnCount, setColumnCount] = useState(4);
+
+  useEffect(() => {
+    const updateColumns = () => {
+      if (window.innerWidth >= 1024) {
+        setColumnCount(4);
+      } else if (window.innerWidth >= 768) {
+        setColumnCount(3);
+      } else {
+        setColumnCount(2);
+      }
+    };
+    updateColumns();
+    window.addEventListener("resize", updateColumns);
+    return () => window.removeEventListener("resize", updateColumns);
+  }, []);
 
   useEffect(() => {
     const fetchLatestProducts = async () => {
@@ -170,9 +179,6 @@ export default function Home() {
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const containerVariants = staggerContainer(0.15, 0.1);
-  const itemVariants = fadeInUp(0, 30, 0.8, [0.16, 1, 0.3, 1]);
-
   return (
     <div className="flex flex-col min-h-screen bg-brand-bg selection:bg-brand-secondary/30">
       <section className="relative w-full h-dvh min-h-[500px] flex items-center justify-center pt-16 overflow-hidden px-4 sm:px-6 md:px-20">
@@ -229,7 +235,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 px-4 sm:px-6 md:px-20 bg-white relative">
+      <section className="py-20 px-4 sm:px-6 md:px-20 bg-brand-bg relative">
         <div className="max-w-7xl mx-auto space-y-12">
           <motion.div
             variants={staggerContainer(0.2)}
@@ -239,20 +245,20 @@ export default function Home() {
             className="text-center max-w-xl mx-auto space-y-3"
           >
             <motion.div
-              variants={slideIn("right", 0)}
+              variants={slideIn("left", 0)}
               className="inline-flex items-center gap-1.5 bg-gray-50 px-3 py-1 rounded-full text-[10px] font-bold text-gray-500 uppercase tracking-wider border border-gray-200"
             >
               <Layers size={10} />
               <span>Kategori</span>
             </motion.div>
             <motion.h2
-              variants={slideIn("right", 0)}
+              variants={slideIn("left", 0)}
               className="text-3xl font-extrabold text-brand-text"
             >
               Pilih Kategori Produk
             </motion.h2>
             <motion.p
-              variants={slideIn("right", 0)}
+              variants={slideIn("left", 0)}
               className="text-gray-550 text-xs sm:text-sm leading-relaxed"
             >
               Jelajahi produk berkualitas tinggi kami yang disusun rapi
@@ -285,10 +291,10 @@ export default function Home() {
             </div>
           ) : (
             <motion.div
-              variants={staggerContainer(0.08, 0.05)}
+              variants={staggerContainer(0.2)}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.15 }}
+              viewport={{ once: false, amount: 0.15 }}
               className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4"
             >
               {categories.map((cat) => (
@@ -297,30 +303,29 @@ export default function Home() {
                   href={`/catalog?category=${cat.name}`}
                   className="block group"
                 >
-                  <motion.div
-                    variants={slideIn("up", 0, 0.5)}
-                    className="relative rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow duration-300 ease-in-out cursor-pointer h-40 group"
-                  >
-                    {/* Background Image */}
-                    <div className="absolute inset-0 z-0">
-                      <img
-                        src={cat.imageUrl}
-                        alt={cat.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      {/* Dark overlay */}
-                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/60 to-black/10 transition-opacity duration-300 group-hover:opacity-5" />
-                    </div>
+                  <motion.div variants={slideIn("right", 0)}>
+                    <div className="relative rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-shadow duration-300 ease-in-out cursor-pointer h-40 group">
+                      {/* Background Image */}
+                      <div className="absolute inset-0 z-0">
+                        <img
+                          src={cat.imageUrl}
+                          alt={cat.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        {/* Dark overlay */}
+                        <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/60 to-black/10 transition-opacity duration-300 group-hover:opacity-5" />
+                      </div>
 
-                    {/* Text Content */}
-                    <div className="relative z-10 p-6 flex flex-col justify-center items-center text-center h-full text-white">
-                      <div>
-                        <h3 className="font-bold text-lg tracking-wide drop-shadow-xs">
-                          {cat.name}
-                        </h3>
-                        <span className="text-[10px] font-bold tracking-wider uppercase bg-white/20 px-2.5 py-0.5 rounded-full inline-block mt-2 backdrop-blur-xs">
-                          {cat.count}
-                        </span>
+                      {/* Text Content */}
+                      <div className="relative z-10 p-6 flex flex-col justify-center items-center text-center h-full text-white">
+                        <div>
+                          <h3 className="font-bold text-lg tracking-wide drop-shadow-xs">
+                            {cat.name}
+                          </h3>
+                          <span className="text-[10px] font-bold tracking-wider uppercase bg-white/20 px-2.5 py-0.5 rounded-full inline-block mt-2 backdrop-blur-xs">
+                            {cat.count}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -334,32 +339,32 @@ export default function Home() {
       {/* Latest Products Section */}
       <section
         id="products-section"
-        className="py-20 px-4 sm:px-6 md:px-20 bg-linear-to-b from-white to-brand-bg/20 scroll-mt-12"
+        className="py-20 px-4 sm:px-6 md:px-20 bg-brand-bg scroll-mt-12"
       >
         <div className="max-w-7xl mx-auto space-y-12">
           {/* Header */}
           <motion.div
-            variants={staggerContainer(0.08, 0.05)}
+            variants={staggerContainer(0.2)}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: false, amount: 0.2 }}
             className="text-center max-w-xl mx-auto space-y-3"
           >
             <motion.div
-              variants={slideIn("up", 0, 0.5)}
+              variants={slideIn("left", 0)}
               className="inline-flex items-center gap-1.5 bg-brand-secondary/10 px-3 py-1 rounded-full text-[10px] font-bold text-brand-secondary uppercase tracking-wider border border-brand-secondary/15"
             >
               <ShoppingBag size={10} />
               <span>Produk Baru</span>
             </motion.div>
             <motion.h2
-              variants={slideIn("up", 0, 0.5)}
+              variants={slideIn("left", 0)}
               className="text-3xl font-extrabold text-brand-text"
             >
               Koleksi Produk Terbaru
             </motion.h2>
             <motion.p
-              variants={slideIn("up", 0, 0.5)}
+              variants={slideIn("left", 0)}
               className="text-gray-550 text-xs sm:text-sm leading-relaxed"
             >
               Daftar produk keluaran terbaru kami yang diproduksi dengan standar
@@ -382,19 +387,19 @@ export default function Home() {
           ) : (
             <AnimatePresence mode="popLayout">
               <motion.div
-                variants={staggerContainer(0.05, 0.05)}
+                variants={staggerContainer(0.2)}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
+                viewport={{ once: false, amount: 0.2 }}
                 className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
               >
                 {latestProducts.map((product, idx) => {
-                  const rowIndex = Math.floor(idx / 4);
+                  const rowIndex = Math.floor(idx / columnCount);
                   return (
                     <motion.div
                       key={product.id}
                       layout
-                      variants={slideIn("up", rowIndex * 0.12, 0.5)}
+                      variants={slideIn("right", 0)}
                     >
                       <ProductCard product={product} />
                     </motion.div>

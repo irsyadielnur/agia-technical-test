@@ -3,15 +3,92 @@
 :root {
   color: var(--text-color);
 
-  --text-color: #101828;
-
   --background-color: #ffffe6;
+  --text-color: #101828;
+  --text-muted: #667085;
+  --surface-color: #ffffff;
+  --border-color: #e5e7eb;
+  --hover-color: #f3f4f6;
   --secondary-color: #adadff;
   --tertiary-color: #ffeb33;
+  --shadow-color: rgba(16, 24, 40, 0.05);
 }
 
 :root[data-theme="dark"] {
+  --background-color: #0f172a;
   --text-color: rgba(234, 236, 255, 0.92);
+  --text-muted: #94a3b8;
+  --surface-color: #1e293b;
+  --border-color: #334155;
+  --hover-color: #334155;
+  --secondary-color: #1e293b;
+  --tertiary-color: #eab308;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Custom dark variant for Tailwind CSS v4 */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Map Tailwind color utility classes to CSS variables */
+.bg-white {
+  background-color: var(--surface-color) !important;
+}
+
+.bg-brand-bg {
+  background-color: var(--background-color) !important;
+}
+
+.bg-gray-50,
+.bg-gray-100,
+.bg-gray-150 {
+  background-color: var(--hover-color) !important;
+}
+
+.text-gray-900,
+.text-gray-850,
+.text-gray-800,
+.text-gray-750,
+.text-gray-700,
+.text-brand-text {
+  color: var(--text-color) !important;
+}
+
+.text-gray-650,
+.text-gray-600,
+.text-gray-550,
+.text-gray-500 {
+  color: var(--text-muted) !important;
+}
+
+.border-gray-100,
+.border-gray-150,
+.border-gray-200,
+.border-gray-250\/50 {
+  border-color: var(--border-color) !important;
+}
+
+.hover\:bg-gray-50:hover,
+.hover\:bg-gray-100:hover,
+.hover\:bg-gray-150:hover,
+.hover\:bg-gray-200:hover {
+  background-color: var(--hover-color) !important;
+}
+
+.shadow-xs,
+.shadow-sm,
+.shadow-md,
+.shadow-lg,
+.shadow-2xl {
+  box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color) !important;
+}
+
+/* Ensure buttons using bg-brand-text invert properly in dark mode */
+:root[data-theme="dark"] .bg-brand-text {
+  background-color: var(--text-color) !important;
+  color: var(--background-color) !important;
+}
+:root[data-theme="dark"] .bg-brand-text * {
+  color: var(--background-color) !important;
 }
 
 @theme {
@@ -19,6 +96,10 @@
   --color-brand-secondary: var(--secondary-color);
   --color-brand-tertiary: var(--tertiary-color);
   --color-brand-text: var(--text-color);
+  --color-brand-surface: var(--surface-color);
+  --color-brand-border: var(--border-color);
+  --color-brand-hover: var(--hover-color);
+  --color-brand-text-muted: var(--text-muted);
 }
 
 body {
